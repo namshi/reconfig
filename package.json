@@ -22,6 +22,6 @@
   },
   "homepage": "https://github.com/namshi/reconfig",
   "devDependencies": {
-    "mocha": "^1.20.1"
+    "mocha": "*"
   }
 }

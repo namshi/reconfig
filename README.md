@@ -1,5 +1,7 @@
 # Reconfig
 
+[![Build Status](https://travis-ci.org/namshi/reconfig.svg?branch=travis)](https://travis-ci.org/namshi/reconfig)
+
 JavaScript configurations as they're meant to be. Kinda.
 
 Reconfig helps you by keeping your configuration clean,
