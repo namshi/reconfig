@@ -13,7 +13,7 @@ function Reconfig (config) {
  * of an object property by path.
  *
  * ie. getValueByPath({a: {b: 2}}, 'a.b')
- * 
+ *
  * @param object
  * @param path
  * @returns {*}
@@ -46,9 +46,16 @@ function getValueByPath(object, path) {
  */
 Reconfig.prototype.resolveReferences = function(value) {
     var rcf = this;
+    var references = value.match(/{{\s*[\w\.]+\s*}}/g);
 
-    return value.replace(/{{\s*[\w\.]+\s*}}/g, function(parameter){
-        return rcf.get(parameter.replace(/[^\w.]/g, ''));
+    if (references && references.length === 1) {
+        var reference = value.replace(/[^\w.]/g, '');
+
+        return rcf.get(reference);
+    }
+
+    return value.replace(/{{\s*[\w\.]+\s*}}/g, function(reference){
+        return rcf.get(reference.replace(/[^\w.]/g, ''));
     });
 };
 
@@ -130,25 +137,17 @@ Reconfig.prototype.get = function (path, parameters) {
         return this.config;
     }
 
-    try{
-        var value = getValueByPath(this.config, path);
+    var value = getValueByPath(this.config, path);
 
-        if (typeof value === 'string') {
-            value = this.resolveReferences(value);
+    if (typeof value === 'string') {
+        value = this.resolveReferences(value);
 
-            if (parameters) {
-                value = this.resolveParameters(value, parameters);
-            }
+        if (parameters) {
+            value = this.resolveParameters(value, parameters);
         }
-
-        if (value === 'null') {
-            return null;
-        }
-
-        return value || null;
-    } catch(err) {
-        return null;
     }
+
+    return value || null;
 }
 
 module.exports = Reconfig;

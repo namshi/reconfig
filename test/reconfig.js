@@ -72,5 +72,30 @@ describe('Reconfig', function(){
 
             assert(null == config.get('a.b'));
         })
+
+        it('should be able to handle complex stuff', function(){
+            var values = {
+                credentials: {
+                    admin: {
+                        read:   true,
+                        write:  true
+                    },
+                    reader: {
+                        read:   true,
+                        write:  false
+                    }
+                },
+                users: {
+                    someImportantDude: {
+                        username:       'him',
+                        password:       '...',
+                        credentials:    '{{ credentials.admin }}'
+                    }
+                }
+            };
+            var config = new reconfig(values);
+
+            assert(true == config.get('users.someImportantDude.credentials').write);
+        })
     })
 })
