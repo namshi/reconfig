@@ -1,0 +1,27 @@
+{
+  "name": "reconfig",
+  "version": "1.0.0",
+  "description": "JavaScript configurations as they're meant to be. Kinda.",
+  "main": "config.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/namshi/reconfig.git"
+  },
+  "keywords": [
+    "config",
+    "configuration",
+    "no-bs"
+  ],
+  "author": "Alex Nadalin <alessandro.nadalin@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/namshi/reconfig/issues"
+  },
+  "homepage": "https://github.com/namshi/reconfig",
+  "dependencies": {
+    "mocha": "^1.20.1"
+  }
+}
