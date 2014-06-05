@@ -1,5 +1,33 @@
+/**
+ * Constructor.
+ *
+ * @param config
+ * @constructor
+ */
 function Reconfig (config) {
     this.config = config || null;
+}
+
+/**
+ * Utility function to get the value
+ * of an object property by path.
+ *
+ * ie. getValueByPath({a: {b: 2}}, 'a.b')
+ * 
+ * @param object
+ * @param path
+ * @returns {*}
+ */
+function getValueByPath(object, path) {
+    var nextPath    = '';
+    var splitPath   = path.split('.');
+
+    if (splitPath.length > 1) {
+        nextPath = path.replace(splitPath[0]+'.', '');
+        return getValueByPath(object[splitPath[0]], nextPath);
+    } else {
+        return object[splitPath[0]];
+    }
 }
 
 /**
@@ -103,7 +131,7 @@ Reconfig.prototype.get = function (path, parameters) {
     }
 
     try{
-        var value = eval('this.config.' + path);
+        var value = getValueByPath(this.config, path);
 
         if (typeof value === 'string') {
             value = this.resolveReferences(value);
