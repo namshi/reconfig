@@ -2,7 +2,7 @@
   "name": "reconfig",
   "version": "1.0.0",
   "description": "JavaScript configurations as they're meant to be. Kinda.",
-  "main": "config.js",
+  "main": "reconfig.js",
   "scripts": {
     "test": "mocha"
   },
