@@ -120,13 +120,6 @@ Reconfig.prototype.set =  function (config) {
  *
  * which will return "Hello John".
  *
- * Please note that this function uses
- * the 'eval' function, so it should not
- * be used with not-sanitized user-input.
- * If you need to retrieve a config value
- * based on user-input, please sanitize the
- * value before retrieving it from the Config object.
- *
  * @param path
  * @param parameters
  * @return {*}
