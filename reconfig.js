@@ -14,19 +14,27 @@ function Reconfig (config) {
  *
  * ie. getValueByPath({a: {b: 2}}, 'a.b')
  *
- * @param object
- * @param path
+ * @param {Object} object
+ * @param {String} path
+ * @param {*} fallbackValue
  * @returns {*}
  */
-function getValueByPath(object, path) {
+function getValueByPath(object, path, fallbackValue) {
     var nextPath    = '';
     var splitPath   = path.split('.');
 
     if (splitPath.length > 1) {
         nextPath = path.replace(splitPath[0] + '.', '');
+
         return getValueByPath(object[splitPath[0]], nextPath);
     } else {
-        return object[splitPath[0]];
+        var value = object[splitPath[0]];
+
+        if (value === undefined && fallbackValue) {
+            return fallbackValue;
+        }
+
+        return value;
     }
 }
 
@@ -120,16 +128,17 @@ Reconfig.prototype.set =  function (config) {
  *
  * which will return "Hello John".
  *
- * @param path
- * @param parameters
+ * @param {String} path
+ * @param {Object} parameters
+ * @param {*} fallbackValue
  * @return {*}
  */
-Reconfig.prototype.get = function (path, parameters) {
+Reconfig.prototype.get = function (path, parameters, fallbackValue) {
     if (!path) {
         return this.config;
     }
 
-    var value = getValueByPath(this.config, path);
+    var value = getValueByPath(this.config, path, fallbackValue);
 
     if (typeof value === 'string') {
         value = this.resolveReferences(value);

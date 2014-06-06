@@ -45,6 +45,13 @@ describe('Reconfig', function(){
             assert(1 === config.get('a.c'));
         })
 
+        it('should return a default value if the default parameter is provided', function(){
+            var values = {a: 1};
+            var config = new reconfig(values);
+
+            assert(2 === config.get('b', {}, 2));
+        })
+
         it('should be able to handle parameters', function(){
             var values = {a: {b: 'hello :what!'}};
             var config = new reconfig(values);

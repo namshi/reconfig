@@ -102,6 +102,19 @@ var config =  new reconfig({
 var greetJohn = config.get('greet', {who: 'John'}); // Hello, John!
 ```
 
+Last but not least, reconfig lets you specify a default value to
+return if a config valu you're trying to access doesnt exist:
+
+``` javascript
+var reconfig = require('reconfig');
+
+var config =  new reconfig({
+    a: 1
+});
+
+config.get('b', {}, 2); // 2
+```
+
 ## Installation
 
 Install this library via [NPM](https://www.npmjs.org/package/reconfig):
