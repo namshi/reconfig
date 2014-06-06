@@ -36,6 +36,7 @@ describe('Reconfig', function(){
             var config = new reconfig(values);
 
             assert(null === config.get('c'));
+            assert(null === config.get('c.a'));
         })
 
         it('should return a deep property if called with the dot notation', function(){
@@ -50,6 +51,7 @@ describe('Reconfig', function(){
             var config = new reconfig(values);
 
             assert(2 === config.get('b', {}, 2));
+            assert(2 === config.get('b.c', {}, 2));
         })
 
         it('should be able to handle parameters', function(){
