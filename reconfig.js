@@ -23,19 +23,19 @@ function getValueByPath(object, path, fallbackValue) {
     var nextPath    = '';
     var splitPath   = path.split('.');
 
+    var value = object[splitPath[0]];
+
+    if (value === undefined) {
+        return fallbackValue?fallbackValue:value;
+    }
+
     if (splitPath.length > 1) {
         nextPath = path.replace(splitPath[0] + '.', '');
 
-        return getValueByPath(object[splitPath[0]], nextPath);
-    } else {
-        var value = object[splitPath[0]];
-
-        if (value === undefined && fallbackValue) {
-            return fallbackValue;
-        }
-
-        return value;
+        return getValueByPath(value, nextPath);
     }
+
+    return value;
 }
 
 /**
