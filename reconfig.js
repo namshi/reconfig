@@ -23,7 +23,7 @@ function getValueByPath(object, path) {
     var splitPath   = path.split('.');
 
     if (splitPath.length > 1) {
-        nextPath = path.replace(splitPath[0]+'.', '');
+        nextPath = path.replace(splitPath[0] + '.', '');
         return getValueByPath(object[splitPath[0]], nextPath);
     } else {
         return object[splitPath[0]];
@@ -97,7 +97,7 @@ Reconfig.prototype.set =  function (config) {
  * 'Hello sir.', you can access it with a
  * convenient dot notation.
  *
- *  Config.get('greet.formal') // Hello sir.
+ * Config.get('greet.formal') // Hello sir.
  *
  * Values can reference other values, for
  * example:
@@ -125,8 +125,7 @@ Reconfig.prototype.set =  function (config) {
  * be used with not-sanitized user-input.
  * If you need to retrieve a config value
  * based on user-input, please sanitize the
- * value before retrieving it from the
- * Config object.
+ * value before retrieving it from the Config object.
  *
  * @param path
  * @param parameters
