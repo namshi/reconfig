@@ -28,7 +28,9 @@ function getValueByPath(object, path, fallbackValue) {
 
         return getValueByPath(object[splitPath[0]], nextPath);
     } else {
-        var value = object[splitPath[0]];
+        if (object !== undefined) {
+            var value = object[splitPath[0]];
+        }
 
         if (value === undefined && fallbackValue) {
             return fallbackValue;
