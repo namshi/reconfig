@@ -59,9 +59,11 @@ Reconfig.prototype.resolveReferences = function(value) {
     var references = value.match(/{{\s*[\w\.]+\s*}}/g);
 
     if (references && references.length === 1) {
-        var reference = value.replace(/[^\w.]/g, '');
+        var reference = rcf.get(references[0].replace(/[^\w.]/g, ''));
 
-        return rcf.get(reference);
+        if (typeof reference != 'string') {
+            return reference;
+        }
     }
 
     return value.replace(/{{\s*[\w\.]+\s*}}/g, function(reference){

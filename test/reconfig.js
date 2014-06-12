@@ -87,11 +87,12 @@ describe('Reconfig', function(){
             assert(null == config.get('a.b'));
         })
 
+
         it('should be able to handle multiple links', function(){
-            var values = {a: {b: '{{ c.hello }}'}, c: { hello: '{{ c.salut }}', salut: "HOLA" }};
+            var values = {a: {b: 'Hey, {{ c.hello }}'}, c: { hello: '{{ c.salut }}', salut: "HOLA" }};
             var config = new reconfig(values);
 
-            assert('HOLA' == config.get('a.b'));
+            assert('Hey, HOLA' == config.get('a.b'));
         })
 
         it('should be able to handle complex stuff', function(){
