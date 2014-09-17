@@ -155,4 +155,6 @@ Reconfig.prototype.get = function (path, parameters, fallbackValue) {
     return value || null;
 }
 
-module.exports = Reconfig;
+if (typeof module !== 'undefined' && module !== null) {
+    module.exports = Reconfig;
+}
