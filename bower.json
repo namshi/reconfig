@@ -1,0 +1,26 @@
+{
+  "name": "reconfig",
+  "main": "reconfig.js",
+  "version": "1.1.2",
+  "homepage": "https://github.com/namshi/reconfig",
+  "authors": [
+    "Alex Nadalin <alessandro.nadalin@gmail.com>"
+  ],
+  "description": "JavaScript configurations as they're meant to be. Kinda.",
+  "moduleType": [
+    "node"
+  ],
+  "keywords": [
+    "config",
+    "configuration",
+    "no-bs"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
