@@ -4,7 +4,7 @@
   "description": "JavaScript configurations as they're meant to be. Kinda.",
   "main": "reconfig.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha -b"
   },
   "repository": {
     "type": "git",
@@ -23,5 +23,8 @@
   "homepage": "https://github.com/namshi/reconfig",
   "devDependencies": {
     "mocha": "*"
+  },
+  "dependencies": {
+    "lodash": "^2.4.1"
   }
 }
