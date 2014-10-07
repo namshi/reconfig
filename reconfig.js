@@ -1,3 +1,7 @@
+'use strict';
+
+var _ = require('lodash');
+
 /**
  * Constructor.
  *
@@ -97,9 +101,51 @@ Reconfig.prototype.resolveParameters = function(value, parameters) {
     return value;
 };
 
+/**
+ * Resolves overlays in a required object
+ *
+ * @param object
+ * @param parameters
+ * @returns {*}
+ */
+Reconfig.prototype.resolveObject = function (object, parameters) {
+  var self = this;
+  var clonedObject = _.cloneDeep(object);
+
+  _.map(clonedObject, function(value, key) {
+    clonedObject[key] = self.resolve(value, parameters);
+  });
+
+  return clonedObject;
+};
+
+/**
+ * Resolve the obtained value,
+ * if value is an object it will recursively resolve the overlays
+ *
+ * @param value
+ * @param parameters
+ * @returns {*}
+ */
+Reconfig.prototype.resolve = function (value, parameters) {
+  if (typeof value === 'string') {
+    value = this.resolveReferences(value);
+
+    if (parameters) {
+      value = this.resolveParameters(value, parameters);
+    }
+  }
+
+  if (typeof value === 'object') {
+    value = this.resolveObject(value, parameters);
+  }
+
+  return value;
+};
+
 Reconfig.prototype.set =  function (config) {
     this.config = config;
-}
+};
 
 /**
  * Returns a configuration value, by path.
@@ -143,17 +189,10 @@ Reconfig.prototype.get = function (path, parameters, fallbackValue) {
     }
 
     var value = getValueByPath(this.config, path, fallbackValue);
-
-    if (typeof value === 'string') {
-        value = this.resolveReferences(value);
-
-        if (parameters) {
-            value = this.resolveParameters(value, parameters);
-        }
-    }
+    value = this.resolve(value, parameters);
 
     return value || null;
-}
+};
 
 if (typeof module !== 'undefined' && module !== null) {
     module.exports = Reconfig;
