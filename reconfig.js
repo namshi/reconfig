@@ -1,15 +1,35 @@
 'use strict';
 
-var _ = require('lodash');
+if (require) {
+  var _ = require('lodash');
+  var vpo = require('vpo');
+}
+
+if (!_ || !vpo) {
+  throw new Error('Reconfig needs lodash (bower install --save lodash || https://lodash.com/) and VPO (bower install --save vpo || https://github.com/unlucio/vpo)');
+}
 
 /**
  * Constructor.
  *
  * @param config
+ * @param envPrefix
  * @constructor
  */
-function Reconfig (config) {
-    this.config = config || null;
+function Reconfig(config, envPrefix) {
+  this.config = config || null;
+
+  if (envPrefix) {
+    if (process && process.env && typeof process.env !== String) {
+      _.merge(this.config, getConfigFromEnv(envPrefix));
+    } else {
+      console.warn('HEY HEY HEY, this feature is supposed to be used in node only :)');
+    }
+  }
+}
+
+function contains(target, subject) {
+  return (target && target.indexOf(subject) > -1);
 }
 
 /**
@@ -24,24 +44,25 @@ function Reconfig (config) {
  * @returns {*}
  */
 function getValueByPath(object, path, fallbackValue) {
-    var nextPath    = '';
-    var splitPath   = path.split('.');
+  var value = vpo.getValueByPath(object, path);
 
-    if (splitPath.length > 1) {
-        nextPath = path.replace(splitPath[0] + '.', '');
+  if (value === undefined && fallbackValue) {
+    value = fallbackValue;
+  }
+  return value;
+}
 
-        return (object === undefined ) ? fallbackValue : getValueByPath(object[splitPath[0]], nextPath);
-    } else {
-        if (object !== undefined) {
-            var value = object[splitPath[0]];
-        }
+function getConfigFromEnv(prefix) {
+  var envConfig = {};
 
-        if (value === undefined && fallbackValue) {
-            return fallbackValue;
-        }
-
-        return value;
+  _.forEach(process.env, function(value, key) {
+    if (contains(key, prefix)) {
+      var path = key.replace(prefix + '_', '').replace(/_/g, '.');
+      vpo.setValueByPath(value, path, envConfig);
     }
+  });
+
+  return envConfig;
 }
 
 /**
@@ -59,20 +80,20 @@ function getValueByPath(object, path, fallbackValue) {
  * @return {string}
  */
 Reconfig.prototype.resolveReferences = function(value) {
-    var rcf = this;
-    var references = value.match(/{{\s*[\w\.]+\s*}}/g);
+  var rcf = this;
+  var references = value.match(/{{\s*[\w\.]+\s*}}/g);
 
-    if (references && references.length === 1) {
-        var reference = rcf.get(references[0].replace(/[^\w.]/g, ''));
+  if (references && references.length === 1) {
+    var reference = rcf.get(references[0].replace(/[^\w.]/g, ''));
 
-        if (typeof reference != 'string') {
-            return reference;
-        }
+    if (typeof reference !== 'string') {
+      return reference;
     }
+  }
 
-    return value.replace(/{{\s*[\w\.]+\s*}}/g, function(reference){
-        return rcf.get(reference.replace(/[^\w.]/g, ''));
-    });
+  return value.replace(/{{\s*[\w\.]+\s*}}/g, function(reference) {
+    return rcf.get(reference.replace(/[^\w.]/g, ''));
+  });
 };
 
 /*
@@ -94,11 +115,11 @@ Reconfig.prototype.resolveReferences = function(value) {
  * @return {*}
  */
 Reconfig.prototype.resolveParameters = function(value, parameters) {
-    for (var property in parameters) {
-        value = value.replace(':' + property, parameters[property]);
-    }
+  for (var property in parameters) {
+    value = value.replace(':' + property, parameters[property]);
+  }
 
-    return value;
+  return value;
 };
 
 /**
@@ -108,7 +129,7 @@ Reconfig.prototype.resolveParameters = function(value, parameters) {
  * @param parameters
  * @returns {*}
  */
-Reconfig.prototype.resolveObject = function (object, parameters) {
+Reconfig.prototype.resolveObject = function(object, parameters) {
   var self = this;
   var clonedObject = _.cloneDeep(object);
 
@@ -127,7 +148,7 @@ Reconfig.prototype.resolveObject = function (object, parameters) {
  * @param parameters
  * @returns {*}
  */
-Reconfig.prototype.resolve = function (value, parameters) {
+Reconfig.prototype.resolve = function(value, parameters) {
   if (typeof value === 'string') {
     value = this.resolveReferences(value);
 
@@ -143,8 +164,8 @@ Reconfig.prototype.resolve = function (value, parameters) {
   return value;
 };
 
-Reconfig.prototype.set =  function (config) {
-    this.config = config;
+Reconfig.prototype.set = function(config) {
+  this.config = config;
 };
 
 /**
@@ -183,17 +204,17 @@ Reconfig.prototype.set =  function (config) {
  * @param {*} fallbackValue
  * @return {*}
  */
-Reconfig.prototype.get = function (path, parameters, fallbackValue) {
-    if (!path) {
-        return this.config;
-    }
+Reconfig.prototype.get = function(path, parameters, fallbackValue) {
+  if (!path) {
+    return this.config;
+  }
 
-    var value = getValueByPath(this.config, path, fallbackValue);
-    value = this.resolve(value, parameters);
+  var value = getValueByPath(this.config, path, fallbackValue);
+  value = this.resolve(value, parameters);
 
-    return value || null;
+  return value || null;
 };
 
 if (typeof module !== 'undefined' && module !== null) {
-    module.exports = Reconfig;
+  module.exports = Reconfig;
 }
