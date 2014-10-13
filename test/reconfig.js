@@ -38,11 +38,18 @@ describe('Reconfig', function(){
             assert(null === config.get('c'));
         });
 
+      it('should return NULL if called with simple non existing path', function(){
+        var values = {a: 1, b: 2};
+        var config = new reconfig(values);
+
+        assert(null === config.get('c.a'));
+      });
+
         it('should return NULL if called with deep non existing path', function(){
             var values = {a: 1, b: 2};
             var config = new reconfig(values);
 
-            assert(null === config.get('c.a'));
+            assert(null === config.get('c.a.b.c.d.e'));
         });
 
         it('should return a deep property if called with the dot notation', function(){

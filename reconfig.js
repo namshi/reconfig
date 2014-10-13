@@ -30,7 +30,7 @@ function getValueByPath(object, path, fallbackValue) {
     if (splitPath.length > 1) {
         nextPath = path.replace(splitPath[0] + '.', '');
 
-        return getValueByPath(object[splitPath[0]], nextPath);
+        return (object === undefined ) ? fallbackValue : getValueByPath(object[splitPath[0]], nextPath);
     } else {
         if (object !== undefined) {
             var value = object[splitPath[0]];
