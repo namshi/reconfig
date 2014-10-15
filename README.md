@@ -24,6 +24,8 @@ var url = config.protocol + '://' + config.domain; // https://example.org
 
 Easy and **ugly as hell**. How can we make the config more elegant?
 
+## The Solution
+
 **Enter Reconfig**.
 
 ``` javascript
@@ -114,6 +116,44 @@ var config =  new reconfig({
 
 config.get('b', {}, 2); // 2
 ```
+
+### Nodejs specifics
+
+**ENV overriders**
+
+So you're using reconfig in your node.js app and you'd like your sys admins to change
+values without touching too much JSON? How about the always familiar ENV vars?
+
+Here's how you do it:
+
+just tell reconfig your env vars prefix:
+
+```javascript
+var reconfig = require('reconfig');
+
+var configValues = {
+    a: 1,
+    b: [2]
+};
+
+var config =  new reconfig(configValues, 'MYPREFIX');
+```
+
+and you'll be able to modify or add new values directly from your shell!
+
+export or add your vars before runnig your node app:
+```bash
+MYPREFIX_a=3 MYPREFIX_b_0=4 MYPREFIX_c=5 node app.js
+```
+
+and here's what you'll get:
+
+```javascript
+config.get('a')     // 3
+config.get('b')[0]  // 4  <-- Pay attention!! It works with arrays too! :D
+config.get('c')     // 5
+```
+
 
 ## Installation
 
