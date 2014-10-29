@@ -1,8 +1,11 @@
 'use strict';
 
-if (require) {
-  var _ = require('lodash');
-  var vpo = require('vpo');
+var _ = _ || null;
+var vpo = vpo || null;
+
+if (typeof require !== 'undefined') {
+  _ = require('lodash');
+  vpo = require('vpo');
 }
 
 if (!_ || !vpo) {
