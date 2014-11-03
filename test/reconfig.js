@@ -167,13 +167,17 @@ describe('Reconfig', function() {
           someImportantDude: {
             username: 'him',
             password: '...',
-            credentials: '{{ credentials.admin }}'
+            credentials: '{{ credentials.admin }}',
+            reader: '{{ credentials.reader }}',
+            author: false
           }
         }
       };
       var config = new reconfig(values);
 
       assert(true === config.get('users.someImportantDude.credentials').write);
+      assert(false === config.get('users.someImportantDude.reader').write);
+      assert(false === config.get('users.someImportantDude.author'));
     });
 
     it('should be able to resolve recursively an object on get', function() {
