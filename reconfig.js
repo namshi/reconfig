@@ -215,7 +215,7 @@ Reconfig.prototype.get = function(path, parameters, fallbackValue) {
   var value = getValueByPath(this.config, path, fallbackValue);
   value = this.resolve(value, parameters);
 
-  return value || null;
+  return (_.isUndefined(value) || _.isNull(value)) ? null : value;
 };
 
 if (typeof module !== 'undefined' && module !== null) {
