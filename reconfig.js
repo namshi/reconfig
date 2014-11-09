@@ -47,7 +47,7 @@ function contains(target, subject) {
  * @returns {*}
  */
 function getValueByPath(object, path, fallbackValue) {
-  var value = vpo.getValueByPath(object, path);
+  var value = vpo.get(object, path);
 
   if (value === undefined && fallbackValue) {
     value = fallbackValue;
@@ -61,7 +61,7 @@ function getConfigFromEnv(prefix) {
   _.forEach(process.env, function(value, key) {
     if (contains(key, prefix)) {
       var path = key.replace(prefix + '_', '').replace(/_/g, '.');
-      vpo.setValueByPath(value, path, envConfig);
+      vpo.set(envConfig, path, value);
     }
   });
 
