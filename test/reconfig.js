@@ -8,7 +8,7 @@ describe('Reconfig', function() {
     var config = new reconfig();
 
     it('should be instantiatable without any parameter', function() {
-      assert('reconfig', typeof config);
+      assert.strictEqual(typeof config, 'object');
     });
   });
 
@@ -16,14 +16,14 @@ describe('Reconfig', function() {
     it('should return NULL if there is no config injected', function() {
       var config = new reconfig();
 
-      assert(null === config.get());
+      assert.strictEqual(config.get(), null);
     });
 
     it('should return the whole config object if called without arguments', function() {
       var values = [1, 2, 3];
       var config = new reconfig(values);
 
-      assert(values === config.get());
+      assert.strictEqual(config.get(), values);
     });
 
     it('should return a specific root config value if called without dots', function() {
@@ -33,7 +33,7 @@ describe('Reconfig', function() {
       };
       var config = new reconfig(values);
 
-      assert(1 === config.get('a'));
+      assert.strictEqual(config.get('a'), 1);
     });
 
     it('should return NULL if called with a non existing path', function() {
@@ -43,7 +43,7 @@ describe('Reconfig', function() {
       };
       var config = new reconfig(values);
 
-      assert(null === config.get('c'));
+      assert.strictEqual(config.get('c'), null);
     });
 
     it('should return NULL if called with deep non existing path', function() {
@@ -53,7 +53,7 @@ describe('Reconfig', function() {
       };
       var config = new reconfig(values);
 
-      assert(null === config.get('c.a'));
+      assert.strictEqual(config.get('c.a'), null);
     });
 
     it('should return NULL if called with simple non existing path', function() {
@@ -63,7 +63,7 @@ describe('Reconfig', function() {
       };
       var config = new reconfig(values);
 
-      assert(null === config.get('c.a'));
+      assert.strictEqual(config.get('c.a'), null);
     });
 
     it('should return NULL if called with deep non existing path', function() {
@@ -73,7 +73,7 @@ describe('Reconfig', function() {
       };
       var config = new reconfig(values);
 
-      assert(null === config.get('c.a.b.c.d.e'));
+      assert.strictEqual(config.get('c.a.b.c.d.e'), null);
     });
 
     it('should return a default value if the default parameter is provided', function() {
@@ -82,7 +82,7 @@ describe('Reconfig', function() {
       };
       var config = new reconfig(values);
 
-      assert(2 === config.get('b', {}, 2));
+      assert.strictEqual(config.get('b', {}, 2), 2);
     });
 
     it('should be able to handle parameters', function() {
@@ -93,9 +93,9 @@ describe('Reconfig', function() {
       };
       var config = new reconfig(values);
 
-      assert('hello world!' === config.get('a.b', {
+      assert.strictEqual(config.get('a.b', {
         what: 'world'
-      }));
+      }), 'hello world!');
     });
 
     it('should be able to handle self-referencing configs', function() {
@@ -107,9 +107,9 @@ describe('Reconfig', function() {
       };
       var config = new reconfig(values);
 
-      assert('hello world!' === config.get('c', {
+      assert.strictEqual(config.get('c', {
         what: 'world'
-      }));
+      }), 'hello world!');
     });
 
     it('shouldnt go bonkers if you pass a parameter that doesnt exist', function() {
@@ -120,9 +120,9 @@ describe('Reconfig', function() {
       };
       var config = new reconfig(values);
 
-      assert('hello :what!' === config.get('a.b', {
+      assert.strictEqual(config.get('a.b', {
         hello: 'world'
-      }));
+      }), 'hello :what!');
     });
 
     it('should return NULL if self-referencing a parameter that doesnt exist', function() {
@@ -133,7 +133,7 @@ describe('Reconfig', function() {
       };
       var config = new reconfig(values);
 
-      assert(null === config.get('a.b'));
+      assert.strictEqual(config.get('a.b'), null);
     });
 
     it('should be able to handle multiple links', function() {
@@ -148,7 +148,7 @@ describe('Reconfig', function() {
       };
       var config = new reconfig(values);
 
-      assert('Hey, HOLA' === config.get('a.b'));
+      assert.strictEqual(config.get('a.b'), 'Hey, HOLA');
     });
 
     it('should be able to handle sibling-level relative references', function() {
@@ -159,11 +159,11 @@ describe('Reconfig', function() {
           suffixes: {
             title: 'M.D.'
           },
-          fullname: '{{ ./firstname }} {{ ./lastname }} {{ ./suffixes.title }}'
+          fullname: '{{ ./firstname }} {{ ./lastname }}, {{ ./suffixes.title }}'
         }
       };
       var config = new reconfig(values);
-      assert(config.get('user.fullname') === config.get('user.firstname') + ' ' + config.get('user.lastname') + ' ' + config.get('user.suffixes.title'));
+      assert.strictEqual(config.get('user.fullname'), 'John Doe, M.D.');
     });
 
     it('should be able to handle ancestor-level relative reference', function() {
@@ -182,10 +182,10 @@ describe('Reconfig', function() {
         i: 'goodbye'
       };
       var config = new reconfig(values);
-      assert(config.get('a.c') === config.get('i'));
-      assert(config.get('a.d.e') === config.get('i'));
-      assert(config.get('a.d.f.g') === config.get('i'));
-      assert(config.get('a.d.f.h') === config.get('i'));
+      assert.strictEqual(config.get('a.c'), config.get('i'));
+      assert.strictEqual(config.get('a.d.e'), config.get('i'));
+      assert.strictEqual(config.get('a.d.f.g'), config.get('i'));
+      assert.strictEqual(config.get('a.d.f.h'), config.get('i'));
     });
 
     it('should be able to handle complex stuff', function() {
@@ -212,9 +212,9 @@ describe('Reconfig', function() {
       };
       var config = new reconfig(values);
 
-      assert(true === config.get('users.someImportantDude.credentials').write);
-      assert(false === config.get('users.someImportantDude.reader').write);
-      assert(false === config.get('users.someImportantDude.author'));
+      assert.strictEqual(config.get('users.someImportantDude.credentials').write, true);
+      assert.strictEqual(config.get('users.someImportantDude.reader').write, false);
+      assert.strictEqual(config.get('users.someImportantDude.author'), false);
     });
 
     it('should be able to resolve recursively an object on get', function() {
@@ -228,14 +228,14 @@ describe('Reconfig', function() {
       };
       var config = new reconfig(values);
 
-      assert('/index.html', config.get('menu').index);
+      assert.strictEqual(config.get('menu').index, '/index.html');
     });
 
     it('should be able to pick up stuff form the environment', function() {
       var values = {};
       var config = new reconfig(values, 'RECONFIG');
 
-      assert('value', config.get('envKey'));
+      assert.strictEqual(config.get('envKey'), 'value');
     });
 
     it('should be able to pick up stuff form the environment and override conf values', function() {
@@ -244,7 +244,7 @@ describe('Reconfig', function() {
       };
       var config = new reconfig(values, 'RECONFIG');
 
-      assert('newValue', config.get('confKey'));
+      assert.strictEqual(config.get('confKey'), 'newValue');
     });
 
     it('env overriders should be able to modify arrays as well', function() {
@@ -257,7 +257,7 @@ describe('Reconfig', function() {
 
       var config = new reconfig(values, 'RECONFIG');
 
-      assert('newValue', config.get('list')[1].key);
+      assert.strictEqual(config.get('list')[1].key, 'newValue');
     });
 
   });

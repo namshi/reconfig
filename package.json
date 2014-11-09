@@ -4,7 +4,7 @@
   "description": "JavaScript configurations as they're meant to be. Kinda.",
   "main": "reconfig.js",
   "scripts": {
-    "test": "RECONFIG_envKey=value RECONFIG_confKey=newValue RECONFIG_list_1_key=newValue mocha -b"
+    "test": "RECONFIG_envKey=value RECONFIG_confKey=newValue RECONFIG_list_1_key=newValue ./node_modules/mocha/bin/mocha -b"
   },
   "repository": {
     "type": "git",

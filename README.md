@@ -168,16 +168,8 @@ If you need it on the client side we highly recommend
 
 ## Tests
 
-This library is tested through mocha, simply run either
+This library is tested through mocha. Simply run the included npm script
 
 ```
-mocha
+npm test
 ```
-
-or
-
-```
-./node_modules/mocha/bin/mocha
-```
-
-if you don't have mocha installed globally.
