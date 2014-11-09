@@ -151,6 +151,43 @@ describe('Reconfig', function() {
       assert('Hey, HOLA' === config.get('a.b'));
     });
 
+    it('should be able to handle sibling-level relative references', function() {
+      var values = {
+        user: {
+          firstname: 'John',
+          lastname: 'Doe',
+          suffixes: {
+            title: 'M.D.'
+          },
+          fullname: '{{ ./firstname }} {{ ./lastname }} {{ ./suffixes.title }}'
+        }
+      };
+      var config = new reconfig(values);
+      assert(config.get('user.fullname') === config.get('user.firstname') + ' ' + config.get('user.lastname') + ' ' + config.get('user.suffixes.title'));
+    });
+
+    it('should be able to handle ancestor-level relative reference', function() {
+      var values = {
+        a: {
+          b: 'hello',
+          c: '{{ ../i }}',
+          d: {
+            e: '{{ ../../i }}',
+            f: {
+              g: '{{ ../e }}',
+              h: '{{ ../../d.e }}'
+            }
+          }
+        },
+        i: 'goodbye'
+      };
+      var config = new reconfig(values);
+      assert(config.get('a.c') === config.get('i'));
+      assert(config.get('a.d.e') === config.get('i'));
+      assert(config.get('a.d.f.g') === config.get('i'));
+      assert(config.get('a.d.f.h') === config.get('i'));
+    });
+
     it('should be able to handle complex stuff', function() {
       var values = {
         credentials: {

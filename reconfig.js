@@ -69,6 +69,34 @@ function getConfigFromEnv(prefix) {
 }
 
 /**
+ * Utility method to convert a reference relative to a path to an absolute reference
+ * @param  {string} referenceProp
+ * @param  {string} path
+ * @return {string}
+ */
+function getAbsoluteReference(referenceProp, path) {
+  var lastDot;
+  var levelsUp;
+  var i;
+
+  if(/^\.\//.test(referenceProp)) {
+    path = path.substr(0, path.lastIndexOf('.'));
+    referenceProp = path + (path ? '.' : '') + referenceProp.replace(/^\.\//, '');
+  }
+
+  else {
+    levelsUp = referenceProp.match(/\.\.\//g).length;
+    for(i = 0; i <= levelsUp; i++) {
+      path = path.substring(0, path.lastIndexOf('.'));
+    }
+
+    referenceProp = path + (path ? '.' : '') + referenceProp.replace(/\.\.\//g, '');
+  }
+
+  return referenceProp;
+}
+
+/**
  * Replaces overlays in a value of the config.
  * Overlays are usually references to other config
  * values such as:
@@ -82,21 +110,32 @@ function getConfigFromEnv(prefix) {
  * @param {Config} config
  * @return {string}
  */
-Reconfig.prototype.resolveReferences = function(value) {
-  var rcf = this;
-  var references = value.match(/{{\s*[\w\.]+\s*}}/g);
+Reconfig.prototype.resolveReferences = function(value, path) {
+  var references = value.match(/{{\s*[\w\.\/]+\s*}}/g);
 
   if (references && references.length === 1) {
-    var reference = rcf.get(references[0].replace(/[^\w.]/g, ''));
+    var referenceProp = references[0].replace(/[^\w.\/]/g, '');
+
+    if (/^\./.test(referenceProp)) {
+      referenceProp = getAbsoluteReference(referenceProp, path);
+    }
+
+    var reference = this.get(referenceProp);
 
     if (typeof reference !== 'string') {
       return reference;
     }
   }
 
-  return value.replace(/{{\s*[\w\.]+\s*}}/g, function(reference) {
-    return rcf.get(reference.replace(/[^\w.]/g, ''));
-  });
+  return value.replace(/{{\s*[\w\.\/]+\s*}}/g, function(reference) {
+    var referenceProp = reference.replace(/[^\w.\/]/g, '');
+
+    if (/^\./.test(referenceProp)) {
+      referenceProp = getAbsoluteReference(referenceProp, path);
+    }
+
+    return this.get(referenceProp);
+  }.bind(this));
 };
 
 /*
@@ -151,9 +190,9 @@ Reconfig.prototype.resolveObject = function(object, parameters) {
  * @param parameters
  * @returns {*}
  */
-Reconfig.prototype.resolve = function(value, parameters) {
+Reconfig.prototype.resolve = function(value, parameters, path) {
   if (typeof value === 'string') {
-    value = this.resolveReferences(value);
+    value = this.resolveReferences(value, path);
 
     if (parameters) {
       value = this.resolveParameters(value, parameters);
@@ -213,7 +252,7 @@ Reconfig.prototype.get = function(path, parameters, fallbackValue) {
   }
 
   var value = getValueByPath(this.config, path, fallbackValue);
-  value = this.resolve(value, parameters);
+  value = this.resolve(value, parameters, path);
 
   return (_.isUndefined(value) || _.isNull(value)) ? null : value;
 };
