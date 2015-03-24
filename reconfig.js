@@ -17,14 +17,15 @@ if (!_ || !vpo) {
  *
  * @param config
  * @param envPrefix
+ * @param separator
  * @constructor
  */
-function Reconfig(config, envPrefix) {
+function Reconfig(config, envPrefix, separator) {
   this.config = config || null;
 
   if (envPrefix) {
     if (process && process.env && typeof process.env !== String) {
-      _.merge(this.config, getConfigFromEnv(envPrefix));
+      _.merge(this.config, getConfigFromEnv(envPrefix, separator));
     } else {
       console.warn('HEY HEY HEY, this feature is supposed to be used in node only :)');
     }
@@ -55,12 +56,13 @@ function getValueByPath(object, path, fallbackValue) {
   return value;
 }
 
-function getConfigFromEnv(prefix) {
+function getConfigFromEnv(prefix, separator) {
+  separator = separator || '__';
   var envConfig = {};
 
   _.forEach(process.env, function(value, key) {
     if (contains(key, prefix)) {
-      var path = key.replace(prefix + '_', '').replace(/_/g, '.');
+      var path = key.replace(prefix + separator, '').replace(new RegExp(separator, 'g'), '.');
       vpo.set(envConfig, path, value);
     }
   });
