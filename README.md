@@ -154,7 +154,7 @@ config.get('b')[0]  // 4  <-- Pay attention!! It works with arrays too! :D
 config.get('c')     // 5
 ```
 
-The default properties separator is: `_` (1 underscores).
+The default properties separator is: `_` (1 underscore).
 You can use your custom separator passing it to the constructor as 3rd parameter:
 
 ```javascript
