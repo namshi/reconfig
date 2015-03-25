@@ -198,16 +198,17 @@ describe('Reconfig', function() {
       var values = {};
       var config = new reconfig(values, 'RECONFIG');
 
-      assert('value', config.get('envKey'));
+      assert(config.get('envKey') === 'value');
     });
 
     it('should be able to pick up stuff form the environment and override conf values', function() {
       var values = {
         confKey: 'value'
       };
+
       var config = new reconfig(values, 'RECONFIG');
 
-      assert('newValue', config.get('confKey'));
+      assert(config.get('confKey') === 'newValue');
     });
 
     it('env overriders should be able to modify arrays as well', function() {
@@ -220,7 +221,21 @@ describe('Reconfig', function() {
 
       var config = new reconfig(values, 'RECONFIG');
 
-      assert('newValue', config.get('list')[1].key);
+      assert(config.get('list')[1].key === 'newValue');
+    });
+
+    it('should be able to pick up stuff form the environment and override conf values (using custom separator)', function() {
+      process.env['RECONFIG__confKey'] = 'newValue';
+      process.env['RECONFIG__conf_Key'] = 'newValue';
+      var values = {
+        confKey: 'value',
+        conf_Key: 'value'
+      };
+
+      var config = new reconfig(values, 'RECONFIG', '__');
+
+      assert(config.get('confKey') === 'newValue');
+      assert(config.get('conf_Key') === 'newValue');
     });
 
   });
