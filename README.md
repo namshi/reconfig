@@ -143,7 +143,7 @@ and you'll be able to modify or add new values directly from your shell!
 
 export or add your vars before runnig your node app:
 ```bash
-MYPREFIX__a=3 MYPREFIX__b__0=4 MYPREFIX__c=5 node app.js
+MYPREFIX_a=3 MYPREFIX_b_0=4 MYPREFIX_c=5 node app.js
 ```
 
 and here's what you'll get:
@@ -154,12 +154,6 @@ config.get('b')[0]  // 4  <-- Pay attention!! It works with arrays too! :D
 config.get('c')     // 5
 ```
 
-The default properties separator is: `__` (2 underscores).
-You can use your custom separator passing it to the constructor as 3rd parameter:
-
-```javascript
-var config =  new reconfig(configValues, 'MYPREFIX', '_-_');
-```
 
 ## Installation
 

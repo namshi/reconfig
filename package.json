@@ -4,7 +4,7 @@
   "description": "JavaScript configurations as they're meant to be. Kinda.",
   "main": "reconfig.js",
   "scripts": {
-    "test": "RECONFIG__envKey=value RECONFIG__confKey=newValue RECONFIG__conf_Key=newValue RECONFIG__list__1__key=newValue mocha -b"
+    "test": "RECONFIG_envKey=value RECONFIG_confKey=newValue RECONFIG_list_1_key=newValue mocha -b"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,6 @@
   },
   "dependencies": {
     "lodash": "^2.4.1",
-    "vpo": "1.0.0"
+    "vpo": "^1.0.0"
   }
 }
