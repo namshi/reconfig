@@ -138,6 +138,18 @@ describe('Reconfig', function() {
       }));
     });
 
+    it('should not go nuts with numeric value for self-referencing configs', function() {
+      var values = {
+        a: {
+          b: 3000
+        },
+        c: 'Hello Fry, this is the year {{ a.b }}'
+      };
+      var config = new reconfig(values);
+
+      assert('Hello Fry, this is the year 3000' === config.get('c'));
+    });
+
     it('shouldnt go bonkers if you pass a parameter that doesnt exist', function() {
       var values = {
         a: {

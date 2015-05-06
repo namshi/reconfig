@@ -86,12 +86,13 @@ function getConfigFromEnv(prefix, separator) {
  */
 Reconfig.prototype.resolveReferences = function(value) {
   var rcf = this;
+  var reference = null;
   var references = value.match(/{{\s*[\w\.]+\s*}}/g);
 
   if (references && references.length === 1) {
-    var reference = rcf.get(references[0].replace(/[^\w.]/g, ''));
+    reference = rcf.get(references[0].replace(/[^\w.]/g, ''));
 
-    if (typeof reference !== 'string') {
+    if (typeof reference === 'object') {
       return reference;
     }
   }
