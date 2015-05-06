@@ -121,7 +121,7 @@ Reconfig.prototype.resolveReferences = function(value) {
  */
 Reconfig.prototype.resolveParameters = function(value, parameters) {
   for (var property in parameters) {
-    value = value.replace(':' + property, parameters[property]);
+    value = value.replace(':' + property, (parameters[property] || ''));
   }
 
   return value;
