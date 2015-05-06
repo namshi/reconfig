@@ -98,6 +98,32 @@ describe('Reconfig', function() {
       }));
     });
 
+    it('should be able to render undefined parameters values as empty string', function() {
+      var values = {
+        a: {
+          b: 'hello :what!'
+        }
+      };
+      var config = new reconfig(values);
+
+      assert('hello !' === config.get('a.b', {
+        what: undefined
+      }));
+    });
+
+    it('should be able to render undefined parameters values as empty string', function() {
+      var values = {
+        a: {
+          b: 'hello :what!'
+        }
+      };
+      var config = new reconfig(values);
+
+      assert('hello !' === config.get('a.b', {
+        what: null
+      }));
+    });
+
     it('should be able to handle self-referencing configs', function() {
       var values = {
         a: {
