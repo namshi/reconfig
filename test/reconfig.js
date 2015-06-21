@@ -229,7 +229,7 @@ describe('Reconfig', function() {
       process.env['RECONFIG__conf_Key'] = 'newValue';
       var values = {
         confKey: 'value',
-        conf_Key: 'value'
+        'conf_Key': 'value'
       };
 
       var config = new reconfig(values, 'RECONFIG', '__');
