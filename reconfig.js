@@ -12,6 +12,24 @@ if (!_ || !vpo) {
   throw new Error('Reconfig needs lodash (bower install --save lodash || https://lodash.com/) and VPO (bower install --save vpo || https://github.com/unlucio/vpo)');
 }
 
+function contains(target, subject) {
+  return (target && target.indexOf(subject) > -1);
+}
+
+function getConfigFromEnv(prefix, separator) {
+  separator = separator || '_';
+  var envConfig = {};
+
+  _.forEach(process.env, function(value, key) {
+    if (contains(key, prefix)) {
+      var path = key.replace(prefix + separator, '').replace(new RegExp(separator, 'g'), '.');
+      vpo.set(envConfig, path, value);
+    }
+  });
+
+  return envConfig;
+}
+
 /**
  * Constructor.
  *
@@ -30,44 +48,6 @@ function Reconfig(config, envPrefix, separator) {
       console.warn('HEY HEY HEY, this feature is supposed to be used in node only :)');
     }
   }
-}
-
-function contains(target, subject) {
-  return (target && target.indexOf(subject) > -1);
-}
-
-/**
- * Utility function to get the value
- * of an object property by path.
- *
- * ie. getValueByPath({a: {b: 2}}, 'a.b')
- *
- * @param {Object} object
- * @param {String} path
- * @param {*} fallbackValue
- * @returns {*}
- */
-function getValueByPath(object, path, fallbackValue) {
-  var value = vpo.get(object, path);
-
-  if (value === undefined && fallbackValue) {
-    value = fallbackValue;
-  }
-  return value;
-}
-
-function getConfigFromEnv(prefix, separator) {
-  separator = separator || '_';
-  var envConfig = {};
-
-  _.forEach(process.env, function(value, key) {
-    if (contains(key, prefix)) {
-      var path = key.replace(prefix + separator, '').replace(new RegExp(separator, 'g'), '.');
-      vpo.set(envConfig, path, value);
-    }
-  });
-
-  return envConfig;
 }
 
 /**
@@ -215,7 +195,7 @@ Reconfig.prototype.get = function(path, parameters, fallbackValue) {
     return this.config;
   }
 
-  var value = getValueByPath(this.config, path, fallbackValue);
+  var value = vpo.get(this.config, path, fallbackValue);
   value = this.resolve(value, parameters);
 
   return (_.isUndefined(value) || _.isNull(value)) ? null : value;
