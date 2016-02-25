@@ -39,15 +39,20 @@ function getConfigFromEnv(prefix, separator) {
  * @constructor
  */
 function Reconfig(config, envPrefix, separator) {
-  this.config = config || null;
+  if (!config) {
+    this.config = null;
+    return;
+  }
 
   if (envPrefix) {
     if (process && process.env && typeof process.env !== String) {
-      _.merge(this.config, getConfigFromEnv(envPrefix, separator));
+      _.merge(config, getConfigFromEnv(envPrefix, separator));
     } else {
       console.warn('HEY HEY HEY, this feature is supposed to be used in node only :)');
     }
   }
+  this.config = config;
+  this.config = this.resolve(config);
 }
 
 /**
@@ -102,7 +107,7 @@ Reconfig.prototype.resolveReferences = function(value) {
  */
 Reconfig.prototype.resolveParameters = function(value, parameters) {
   for (var property in parameters) {
-    value = value.replace(':' + property, (parameters[property] || ''));
+    value = (value) ? value.replace(':' + property, (parameters[property] || '')) : value;
   }
 
   return value;
