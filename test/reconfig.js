@@ -278,4 +278,46 @@ describe('Reconfig', function() {
     });
 
   });
+
+  describe('set', function() {
+    it('should be able to set the config object on an existing instance', function() {
+      var config =  new reconfig({});
+      var conf = {
+        a: 1,
+        b: 2,
+        c: '{{a}}_{{b}}'
+      };
+
+      config.set(conf);
+      assert(config.get('c') === '1_2');
+    });
+
+    it('should be able to update the config object on an existing instance', function() {
+      var config =  new reconfig({
+          a: 1,
+          b: 2,
+          c: '{{a}}_{{b}}'
+      });
+
+      config.set({b: 3});
+      assert(config.get('c') === '1_3');
+    });
+
+    it('should be able to update a complex config object on an existing instance', function() {
+      var config =  new reconfig({
+          a: {
+            a1: 1
+          },
+          b: 2,
+          c: {
+            d: 3
+          },
+          res: '{{a.a1}}_{{c.d}}_{{b}}'
+      });
+
+      config.set({b: 3, c:{d: 4}});
+      assert(config.get('res') === '1_4_3');
+    });
+
+  });
 });

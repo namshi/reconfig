@@ -12,10 +12,6 @@ if (!_ || !vpo) {
   throw new Error('Reconfig needs lodash (bower install --save lodash || https://lodash.com/) and VPO (bower install --save vpo || https://github.com/unlucio/vpo)');
 }
 
-if (!_.VERSION.match(/4.5/)) {
-  throw new Error('Reconfig needs lodash version 4.5.*');
-}
-
 function getConfigFromEnv(prefix, separator) {
   separator = separator || '_';
   var envConfig = {};
@@ -39,20 +35,12 @@ function getConfigFromEnv(prefix, separator) {
  * @constructor
  */
 function Reconfig(config, envPrefix, separator) {
-  if (!config) {
-    this.config = null;
-    return;
-  }
+  this._config = null;
+  this._rawConfig = null;
+  this._envPrefix = envPrefix;
+  this._separator = separator;
 
-  if (envPrefix) {
-    if (process && process.env && typeof process.env !== String) {
-      _.merge(config, getConfigFromEnv(envPrefix, separator));
-    } else {
-      console.warn('HEY HEY HEY, this feature is supposed to be used in node only :)');
-    }
-  }
-  this.config = config;
-  this.config = this.resolve(config);
+  this.set(config);
 }
 
 /**
@@ -155,6 +143,23 @@ Reconfig.prototype.resolve = function(value, parameters) {
   return value;
 };
 
+Reconfig.prototype.set = function(config) {
+    if (!config) {
+    return;
+  }
+
+  if (this._envPrefix) {
+    if (process && process.env && typeof process.env !== String) {
+      _.merge(config, getConfigFromEnv(this._envPrefix, this._separator));
+    } else {
+      console.warn('HEY HEY HEY, this feature is supposed to be used in node only :)');
+    }
+  }
+
+  this._config = this._rawConfig = (_.isObject(this._rawConfig) || _.isArray(this._rawConfig)) ? _.merge(this._rawConfig, config) : config;
+  this._config = this.resolve(this._config);
+};
+
 /**
  * Returns a configuration value, by path.
  *
@@ -193,10 +198,10 @@ Reconfig.prototype.resolve = function(value, parameters) {
  */
 Reconfig.prototype.get = function(path, parameters, fallbackValue) {
   if (!path) {
-    return this.config;
+    return this._config;
   }
 
-  var value = vpo.get(this.config, path, fallbackValue);
+  var value = vpo.get(this._config, path, fallbackValue);
   value = (parameters) ? this.resolve(value, parameters): value;
 
   return (_.isUndefined(value) || _.isNull(value)) ? null : value;
