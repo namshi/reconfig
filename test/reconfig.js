@@ -2,6 +2,7 @@
 
 var assert = require('assert');
 var reconfig = require('./../reconfig');
+var _ = require('lodash');
 
 describe('Reconfig', function() {
   describe('new', function() {
@@ -23,7 +24,7 @@ describe('Reconfig', function() {
       var values = [1, 2, 3];
       var config = new reconfig(values);
 
-      assert(values === config.get());
+      assert(_.isEqual(values, config.get()));
     });
 
     it('should return a specific root config value if called without dots', function() {
