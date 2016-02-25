@@ -12,8 +12,8 @@ if (!_ || !vpo) {
   throw new Error('Reconfig needs lodash (bower install --save lodash || https://lodash.com/) and VPO (bower install --save vpo || https://github.com/unlucio/vpo)');
 }
 
-function contains(target, subject) {
-  return (target && target.indexOf(subject) > -1);
+if (!_.VERSION.match(/4.5/)) {
+  throw new Error('Reconfig needs lodash version 4.5.*');
 }
 
 function getConfigFromEnv(prefix, separator) {
@@ -21,7 +21,7 @@ function getConfigFromEnv(prefix, separator) {
   var envConfig = {};
 
   _.forEach(process.env, function(value, key) {
-    if (contains(key, prefix)) {
+    if (_.includes(key, prefix)) {
       var path = key.replace(prefix + separator, '').replace(new RegExp(separator, 'g'), '.');
       vpo.set(envConfig, path, value);
     }
@@ -75,7 +75,7 @@ Reconfig.prototype.resolveReferences = function(value) {
   var references = value.match(/{{\s*[\w\.]+\s*}}/g);
 
   if (references && references.length === 1) {
-    reference = rcf.get(references[0].replace(/[^\w.]/g, ''));
+    reference = rcf.resolve(rcf.get(references[0].replace(/[^\w.]/g, '')));
 
     if (typeof reference === 'object') {
       return reference;
@@ -83,7 +83,7 @@ Reconfig.prototype.resolveReferences = function(value) {
   }
 
   return value.replace(/{{\s*[\w\.]+\s*}}/g, function(reference) {
-    return rcf.get(reference.replace(/[^\w.]/g, ''));
+    return rcf.resolve(rcf.get(reference.replace(/[^\w.]/g, '')));
   });
 };
 
@@ -124,7 +124,7 @@ Reconfig.prototype.resolveObject = function(object, parameters) {
   var self = this;
   var clonedObject = _.cloneDeep(object);
 
-  _.map(clonedObject, function(value, key) {
+  _.forEach(clonedObject, function(value, key) {
     clonedObject[key] = self.resolve(value, parameters);
   });
 
@@ -153,10 +153,6 @@ Reconfig.prototype.resolve = function(value, parameters) {
   }
 
   return value;
-};
-
-Reconfig.prototype.set = function(config) {
-  this.config = config;
 };
 
 /**
@@ -201,7 +197,7 @@ Reconfig.prototype.get = function(path, parameters, fallbackValue) {
   }
 
   var value = vpo.get(this.config, path, fallbackValue);
-  value = this.resolve(value, parameters);
+  value = (parameters) ? this.resolve(value, parameters): value;
 
   return (_.isUndefined(value) || _.isNull(value)) ? null : value;
 };
