@@ -1,6 +1,6 @@
 {
   "name": "reconfig",
-  "version": "1.6.3",
+  "version": "2.0.0",
   "description": "JavaScript configurations as they're meant to be. Kinda.",
   "main": "reconfig.js",
   "scripts": {
