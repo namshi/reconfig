@@ -2,6 +2,7 @@
 
 var assert = require('assert');
 var reconfig = require('./../reconfig');
+var _ = require('lodash');
 
 describe('Reconfig', function() {
   describe('new', function() {
@@ -23,7 +24,7 @@ describe('Reconfig', function() {
       var values = [1, 2, 3];
       var config = new reconfig(values);
 
-      assert(values === config.get());
+      assert(_.isEqual(values, config.get()));
     });
 
     it('should return a specific root config value if called without dots', function() {
@@ -274,6 +275,48 @@ describe('Reconfig', function() {
 
       assert(config.get('confKey') === 'newValue');
       assert(config.get('conf_Key') === 'newValue');
+    });
+
+  });
+
+  describe('set', function() {
+    it('should be able to set the config object on an existing instance', function() {
+      var config =  new reconfig({});
+      var conf = {
+        a: 1,
+        b: 2,
+        c: '{{a}}_{{b}}'
+      };
+
+      config.set(conf);
+      assert(config.get('c') === '1_2');
+    });
+
+    it('should be able to update the config object on an existing instance', function() {
+      var config =  new reconfig({
+          a: 1,
+          b: 2,
+          c: '{{a}}_{{b}}'
+      });
+
+      config.set({b: 3});
+      assert(config.get('c') === '1_3');
+    });
+
+    it('should be able to update a complex config object on an existing instance', function() {
+      var config =  new reconfig({
+          a: {
+            a1: 1
+          },
+          b: 2,
+          c: {
+            d: 3
+          },
+          res: '{{a.a1}}_{{c.d}}_{{b}}'
+      });
+
+      config.set({b: 3, c:{d: 4}});
+      assert(config.get('res') === '1_4_3');
     });
 
   });

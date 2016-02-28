@@ -25,7 +25,7 @@
     "mocha": "*"
   },
   "dependencies": {
-    "lodash": "^2.4.1",
-    "vpo": "1.1.1"
+    "lodash": "4.5.1",
+    "vpo": "2.0.0"
   }
 }

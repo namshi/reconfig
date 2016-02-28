@@ -117,6 +117,25 @@ var config =  new reconfig({
 config.get('b', {}, 2); // 2
 ```
 
+** Setting you config object **
+If you wish to change parts of your config on an already existent Reconfig instance:
+
+``` javascript
+var reconfig = require('reconfig');
+
+var config =  new reconfig({
+    a: 1,
+    b: 2,
+    c: '{{a}}_{{b}}'
+});
+
+config.get('c') // 1_2;
+
+config.set({b: 3});
+
+config.get('c') // 1_3;
+```
+
 ### Nodejs specifics
 
 **ENV overriders**

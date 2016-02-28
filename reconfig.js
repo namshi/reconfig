@@ -12,16 +12,12 @@ if (!_ || !vpo) {
   throw new Error('Reconfig needs lodash (bower install --save lodash || https://lodash.com/) and VPO (bower install --save vpo || https://github.com/unlucio/vpo)');
 }
 
-function contains(target, subject) {
-  return (target && target.indexOf(subject) > -1);
-}
-
 function getConfigFromEnv(prefix, separator) {
   separator = separator || '_';
   var envConfig = {};
 
   _.forEach(process.env, function(value, key) {
-    if (contains(key, prefix)) {
+    if (_.includes(key, prefix)) {
       var path = key.replace(prefix + separator, '').replace(new RegExp(separator, 'g'), '.');
       vpo.set(envConfig, path, value);
     }
@@ -39,15 +35,12 @@ function getConfigFromEnv(prefix, separator) {
  * @constructor
  */
 function Reconfig(config, envPrefix, separator) {
-  this.config = config || null;
+  this._config = null;
+  this._rawConfig = null;
+  this._envPrefix = envPrefix;
+  this._separator = separator;
 
-  if (envPrefix) {
-    if (process && process.env && typeof process.env !== String) {
-      _.merge(this.config, getConfigFromEnv(envPrefix, separator));
-    } else {
-      console.warn('HEY HEY HEY, this feature is supposed to be used in node only :)');
-    }
-  }
+  this.set(config);
 }
 
 /**
@@ -70,7 +63,7 @@ Reconfig.prototype.resolveReferences = function(value) {
   var references = value.match(/{{\s*[\w\.]+\s*}}/g);
 
   if (references && references.length === 1) {
-    reference = rcf.get(references[0].replace(/[^\w.]/g, ''));
+    reference = rcf.resolve(rcf.get(references[0].replace(/[^\w.]/g, '')));
 
     if (typeof reference === 'object') {
       return reference;
@@ -78,7 +71,7 @@ Reconfig.prototype.resolveReferences = function(value) {
   }
 
   return value.replace(/{{\s*[\w\.]+\s*}}/g, function(reference) {
-    return rcf.get(reference.replace(/[^\w.]/g, ''));
+    return rcf.resolve(rcf.get(reference.replace(/[^\w.]/g, '')));
   });
 };
 
@@ -102,7 +95,7 @@ Reconfig.prototype.resolveReferences = function(value) {
  */
 Reconfig.prototype.resolveParameters = function(value, parameters) {
   for (var property in parameters) {
-    value = value.replace(':' + property, (parameters[property] || ''));
+    value = (value) ? value.replace(':' + property, (parameters[property] || '')) : value;
   }
 
   return value;
@@ -119,7 +112,7 @@ Reconfig.prototype.resolveObject = function(object, parameters) {
   var self = this;
   var clonedObject = _.cloneDeep(object);
 
-  _.map(clonedObject, function(value, key) {
+  _.forEach(clonedObject, function(value, key) {
     clonedObject[key] = self.resolve(value, parameters);
   });
 
@@ -151,7 +144,20 @@ Reconfig.prototype.resolve = function(value, parameters) {
 };
 
 Reconfig.prototype.set = function(config) {
-  this.config = config;
+    if (!config) {
+    return;
+  }
+
+  if (this._envPrefix) {
+    if (process && process.env && typeof process.env !== String) {
+      _.merge(config, getConfigFromEnv(this._envPrefix, this._separator));
+    } else {
+      console.warn('HEY HEY HEY, this feature is supposed to be used in node only :)');
+    }
+  }
+
+  this._config = this._rawConfig = (_.isObject(this._rawConfig) || _.isArray(this._rawConfig)) ? _.merge(this._rawConfig, config) : config;
+  this._config = this.resolve(this._config);
 };
 
 /**
@@ -192,11 +198,11 @@ Reconfig.prototype.set = function(config) {
  */
 Reconfig.prototype.get = function(path, parameters, fallbackValue) {
   if (!path) {
-    return this.config;
+    return this._config;
   }
 
-  var value = vpo.get(this.config, path, fallbackValue);
-  value = this.resolve(value, parameters);
+  var value = vpo.get(this._config, path, fallbackValue);
+  value = (parameters) ? this.resolve(value, parameters): value;
 
   return (_.isUndefined(value) || _.isNull(value)) ? null : value;
 };
