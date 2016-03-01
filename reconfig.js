@@ -95,7 +95,9 @@ Reconfig.prototype.resolveReferences = function(value) {
  */
 Reconfig.prototype.resolveParameters = function(value, parameters) {
   for (var property in parameters) {
-    value = (value) ? value.replace(':' + property, (parameters[property] || '')) : value;
+    if (value) {
+      value = value.replace(RegExp(':' + property, 'g'), (parameters[property] || ''));
+    }
   }
 
   return value;

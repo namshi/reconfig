@@ -125,6 +125,20 @@ describe('Reconfig', function() {
       }));
     });
 
+    it('should be able to render parmas in composite values', function() {
+      var values = {
+        a: {
+          b: 'hello :what!'
+        },
+        c: '{{ a.b }}, :what'
+      };
+      var config = new reconfig(values);
+
+      assert('hello world!, world' === config.get('c', {
+        what: 'world'
+      }));
+    });
+
     it('should be able to handle self-referencing configs', function() {
       var values = {
         a: {
