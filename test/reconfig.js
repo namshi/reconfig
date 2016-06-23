@@ -249,7 +249,7 @@ describe('Reconfig', function() {
 
     it('should be able to pick up stuff form the environment', function() {
       var values = {};
-      var config = new Reconfig(values, 'RECONFIG');
+      var config = new Reconfig(values, {envPrefix: 'RECONFIG'});
 
       assert(config.get('envKey') === 'value');
     });
@@ -259,7 +259,7 @@ describe('Reconfig', function() {
         confKey: 'value'
       };
 
-      var config = new Reconfig(values, 'RECONFIG');
+      var config = new Reconfig(values, {envPrefix: 'RECONFIG'});
 
       assert(config.get('confKey') === 'newValue');
     });
@@ -272,7 +272,7 @@ describe('Reconfig', function() {
         ]
       };
 
-      var config = new Reconfig(values, 'RECONFIG');
+      var config = new Reconfig(values, {envPrefix: 'RECONFIG'});
 
       assert(config.get('list')[1].key === 'newValue');
     });
@@ -285,7 +285,7 @@ describe('Reconfig', function() {
         'conf_Key': 'value'
       };
 
-      var config = new Reconfig(values, 'RECONFIG', '__');
+      var config = new Reconfig(values, {envPrefix: 'RECONFIG', separator: '__'});
 
       assert(config.get('confKey') === 'newValue');
       assert(config.get('conf_Key') === 'newValue');
@@ -331,6 +331,18 @@ describe('Reconfig', function() {
 
       config.set({b: 3, c:{d: 4}});
       assert(config.get('res') === '1_4_3');
+    });
+
+    it('should be able to custom interpolation for parameters', function() {
+      var config =  new Reconfig({
+        a: 1,
+        b: 2,
+        c: '{{a}}_{{b}}__{customParam}'
+      }, {
+        paramsInterpolation: ['{','}']
+      });
+
+      assert(config.get('c', {customParam: 'hi'}) === '1_2__hi');
     });
 
   });

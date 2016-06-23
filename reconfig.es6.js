@@ -5,7 +5,7 @@ import vpo from 'vpo';
 let getConfigFromEnv = (prefix, separator = '_') => {
     let envConfig = {};
 
-    _.forEach(process.env,  (value, key) => {
+    _.forEach(process.env, (value, key) => {
         if (_.includes(key, prefix)) {
             let path = key.replace(prefix + separator, '').replace(new RegExp(separator, 'g'), '.');
             vpo.set(envConfig, path, value);
@@ -25,9 +25,10 @@ export default class Reconfig {
      * @param envPrefix
      * @param separator
      */
-    constructor(config, envPrefix, separator) {
+    constructor(config, {envPrefix, separator, paramsInterpolation=[':', '']}={}) { // @TODO: Breaking changes for backward compatibility. Check with Alex
         this._envPrefix = envPrefix;
         this._separator = separator;
+        this._paramsInterpolation = paramsInterpolation;
         this.set(config);
     }
 
@@ -83,7 +84,10 @@ export default class Reconfig {
     resolveParameters(value, parameters) {
         for (let property in parameters) {
             if (value) {
-                value = value.replace(RegExp(':' + property, 'g'), (parameters[property] || ''));
+                value = value.replace(
+                    RegExp(this._paramsInterpolation[0] + property + this._paramsInterpolation[1], 'g'),
+                    (parameters[property] || '')
+                );
             }
         }
 
