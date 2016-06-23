@@ -1,28 +1,28 @@
 'use strict';
 
 var assert = require('assert');
-var reconfig = require('./../reconfig');
+var Reconfig = require('./../');
 var _ = require('lodash');
 
 describe('Reconfig', function() {
   describe('new', function() {
-    var config = new reconfig();
+    var config = new Reconfig();
 
     it('should be instantiatable without any parameter', function() {
-      assert('reconfig', typeof config);
+      assert('Reconfig', typeof config);
     });
   });
 
   describe('get', function() {
     it('should return NULL if there is no config injected', function() {
-      var config = new reconfig();
+      var config = new Reconfig();
 
       assert(null === config.get());
     });
 
     it('should return the whole config object if called without arguments', function() {
       var values = [1, 2, 3];
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert(_.isEqual(values, config.get()));
     });
@@ -32,7 +32,7 @@ describe('Reconfig', function() {
         a: 1,
         b: 2
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert(1 === config.get('a'));
     });
@@ -42,7 +42,7 @@ describe('Reconfig', function() {
         a: 1,
         b: 2
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert(null === config.get('c'));
     });
@@ -52,7 +52,7 @@ describe('Reconfig', function() {
         a: 1,
         b: 2
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert(null === config.get('c.a'));
     });
@@ -62,7 +62,7 @@ describe('Reconfig', function() {
         a: 1,
         b: 2
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert(null === config.get('c.a'));
     });
@@ -72,7 +72,7 @@ describe('Reconfig', function() {
         a: 1,
         b: 2
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert(null === config.get('c.a.b.c.d.e'));
     });
@@ -81,7 +81,7 @@ describe('Reconfig', function() {
       var values = {
         a: 1
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert(2 === config.get('b', {}, 2));
     });
@@ -92,7 +92,7 @@ describe('Reconfig', function() {
           b: 'hello :what!'
         }
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert('hello world!' === config.get('a.b', {
         what: 'world'
@@ -105,7 +105,7 @@ describe('Reconfig', function() {
           b: 'hello :what!'
         }
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert('hello !' === config.get('a.b', {
         what: undefined
@@ -118,7 +118,7 @@ describe('Reconfig', function() {
           b: 'hello :what!'
         }
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert('hello !' === config.get('a.b', {
         what: null
@@ -132,7 +132,7 @@ describe('Reconfig', function() {
         },
         c: '{{ a.b }}, :what'
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert('hello world!, world' === config.get('c', {
         what: 'world'
@@ -146,7 +146,7 @@ describe('Reconfig', function() {
         },
         c: '{{ a.b }}'
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert('hello world!' === config.get('c', {
         what: 'world'
@@ -160,7 +160,7 @@ describe('Reconfig', function() {
         },
         c: 'Hello Fry, this is the year {{ a.b }}'
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert('Hello Fry, this is the year 3000' === config.get('c'));
     });
@@ -171,7 +171,7 @@ describe('Reconfig', function() {
           b: 'hello :what!'
         }
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert('hello :what!' === config.get('a.b', {
         hello: 'world'
@@ -184,7 +184,7 @@ describe('Reconfig', function() {
           b: '{{ c }}'
         }
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert(null === config.get('a.b'));
     });
@@ -199,7 +199,7 @@ describe('Reconfig', function() {
           salut: 'HOLA'
         }
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert('Hey, HOLA' === config.get('a.b'));
     });
@@ -226,7 +226,7 @@ describe('Reconfig', function() {
           }
         }
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert(true === config.get('users.someImportantDude.credentials').write);
       assert(false === config.get('users.someImportantDude.reader').write);
@@ -242,14 +242,14 @@ describe('Reconfig', function() {
           index: '{{ routes.index }}'
         }
       };
-      var config = new reconfig(values);
+      var config = new Reconfig(values);
 
       assert('/index.html', config.get('menu').index);
     });
 
     it('should be able to pick up stuff form the environment', function() {
       var values = {};
-      var config = new reconfig(values, 'RECONFIG');
+      var config = new Reconfig(values, 'RECONFIG');
 
       assert(config.get('envKey') === 'value');
     });
@@ -259,7 +259,7 @@ describe('Reconfig', function() {
         confKey: 'value'
       };
 
-      var config = new reconfig(values, 'RECONFIG');
+      var config = new Reconfig(values, 'RECONFIG');
 
       assert(config.get('confKey') === 'newValue');
     });
@@ -272,7 +272,7 @@ describe('Reconfig', function() {
         ]
       };
 
-      var config = new reconfig(values, 'RECONFIG');
+      var config = new Reconfig(values, 'RECONFIG');
 
       assert(config.get('list')[1].key === 'newValue');
     });
@@ -285,7 +285,7 @@ describe('Reconfig', function() {
         'conf_Key': 'value'
       };
 
-      var config = new reconfig(values, 'RECONFIG', '__');
+      var config = new Reconfig(values, 'RECONFIG', '__');
 
       assert(config.get('confKey') === 'newValue');
       assert(config.get('conf_Key') === 'newValue');
@@ -295,7 +295,7 @@ describe('Reconfig', function() {
 
   describe('set', function() {
     it('should be able to set the config object on an existing instance', function() {
-      var config =  new reconfig({});
+      var config =  new Reconfig({});
       var conf = {
         a: 1,
         b: 2,
@@ -307,7 +307,7 @@ describe('Reconfig', function() {
     });
 
     it('should be able to update the config object on an existing instance', function() {
-      var config =  new reconfig({
+      var config =  new Reconfig({
           a: 1,
           b: 2,
           c: '{{a}}_{{b}}'
@@ -318,7 +318,7 @@ describe('Reconfig', function() {
     });
 
     it('should be able to update a complex config object on an existing instance', function() {
-      var config =  new reconfig({
+      var config =  new Reconfig({
           a: {
             a1: 1
           },
