@@ -1,6 +1,5 @@
 'use strict';
 import _ from 'lodash';
-import vpo from 'vpo';
 
 let getConfigFromEnv = (prefix, separator = '_') => {
     let envConfig = {};
@@ -8,7 +7,7 @@ let getConfigFromEnv = (prefix, separator = '_') => {
     _.forEach(process.env, (value, key) => {
         if (_.includes(key, prefix)) {
             let path = key.replace(prefix + separator, '').replace(new RegExp(separator, 'g'), '.');
-            vpo.set(envConfig, path, value);
+            _.set(envConfig, path, value);
         }
     });
 
@@ -25,10 +24,10 @@ export default class Reconfig {
      * @param envPrefix
      * @param separator
      */
-    constructor(config, {envPrefix, separator, paramsInterpolation=[':', '']}={}) { // @TODO: Breaking changes for backward compatibility. Check with Alex
+    constructor(config, {envPrefix, separator, paramsInterpolation=[':', '']}={}) {
         this._envPrefix = envPrefix;
         this._separator = separator;
-        this._paramsInterpolation = paramsInterpolation;
+        this._paramsInterpolation = paramsInterpolation.map( _.escapeRegExp );
         this.set(config);
     }
 
@@ -82,6 +81,10 @@ export default class Reconfig {
      * @return {*}
      */
     resolveParameters(value, parameters) {
+        if(!_.isObject(parameters)){
+            return value;
+        }
+
         for (let property in parameters) {
             if (value) {
                 value = value.replace(
@@ -193,7 +196,7 @@ export default class Reconfig {
             return this._config;
         }
 
-        let value = vpo.get(this._config, path, fallbackValue);
+        let value = _.get(this._config, path, fallbackValue);
         value = (parameters) ? this.resolve(value, parameters) : value;
 
         return (_.isUndefined(value) || _.isNull(value)) ? null : value;

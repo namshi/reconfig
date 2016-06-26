@@ -1,11 +1,11 @@
 {
   "name": "reconfig",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "JavaScript configurations as they're meant to be. Kinda.",
   "main": "build/reconfig.js",
   "scripts": {
     "test": "npm run build && RECONFIG_envKey=value RECONFIG_confKey=newValue RECONFIG_list_1_key=newValue mocha -b",
-    "compile": "babel reconfig.es6.js -o build/reconfig.js",
+    "compile": "babel reconfig.js -o build/reconfig.js",
     "build": "npm run compile &&  uglifyjs build/reconfig.js -o build/reconfig.js --source-map build/reconfig.min.js.map",
     "prepublish": "npm test"
   },
@@ -13,6 +13,9 @@
     "type": "git",
     "url": "git://github.com/namshi/reconfig.git"
   },
+  "files": [
+    "build"
+  ],
   "keywords": [
     "config",
     "configuration",
@@ -35,7 +38,6 @@
     "uglify-js": "^2.6.4"
   },
   "dependencies": {
-    "lodash": "4.5.1",
-    "vpo": "2.0.0"
+    "lodash": "4.5.1"
   }
 }
