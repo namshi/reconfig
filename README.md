@@ -104,8 +104,24 @@ var config =  new reconfig({
 var greetJohn = config.get('greet', {who: 'John'}); // Hello, John!
 ```
 
+By default, reconfig uses `:` to interpolate the parameters. For example, in the above code, `:who` gets replaced by the parameter value.
+You can specify your own interpolation for resolving the parameters by setting the `paramsInterpolation` option. 
+
+```javascript
+
+var reconfig = require('reconfig');
+
+var config =  new reconfig({
+    greet: 'Hello {who}!'
+}, { 
+    paramsInterpolation: ['{', '}'] 
+});
+
+var greetJohn = config.get('greet', {who: 'John'}); // Hello, John!
+```
+
 Last but not least, reconfig lets you specify a default value to
-return if a config valu you're trying to access doesnt exist:
+return if a config value you're trying to access doesn't exist:
 
 ``` javascript
 var reconfig = require('reconfig');
@@ -155,7 +171,7 @@ var configValues = {
     b: [2]
 };
 
-var config =  new reconfig(configValues, 'MYPREFIX');
+var config =  new reconfig(configValues, { envPrefix: 'MYPREFIX' });
 ```
 
 and you'll be able to modify or add new values directly from your shell!
@@ -177,7 +193,7 @@ The default properties separator is: `_` (1 underscore).
 You can use your custom separator passing it to the constructor as 3rd parameter:
 
 ```javascript
-var config =  new reconfig(configValues, 'MYPREFIX', '__');
+var config =  new reconfig(configValues, { envPrefix: 'MYPREFIX', separator: '__' });
 ```
 
 ## Installation

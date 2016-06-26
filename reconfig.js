@@ -1,214 +1,204 @@
 'use strict';
+import _ from 'lodash';
 
-var _ = _ || null;
-var vpo = vpo || null;
+let getConfigFromEnv = (prefix, separator = '_') => {
+    let envConfig = {};
 
-if (typeof require !== 'undefined') {
-  _ = require('lodash');
-  vpo = require('vpo');
+    _.forEach(process.env, (value, key) => {
+        if (_.includes(key, prefix)) {
+            let path = key.replace(prefix + separator, '').replace(new RegExp(separator, 'g'), '.');
+            _.set(envConfig, path, value);
+        }
+    });
+
+    return envConfig;
 }
 
-if (!_ || !vpo) {
-  throw new Error('Reconfig needs lodash (bower install --save lodash || https://lodash.com/) and VPO (bower install --save vpo || https://github.com/unlucio/vpo)');
-}
+export default class Reconfig {
+    _config = null;
+    _rawConfig = null;
 
-function getConfigFromEnv(prefix, separator) {
-  separator = separator || '_';
-  var envConfig = {};
-
-  _.forEach(process.env, function(value, key) {
-    if (_.includes(key, prefix)) {
-      var path = key.replace(prefix + separator, '').replace(new RegExp(separator, 'g'), '.');
-      vpo.set(envConfig, path, value);
+    /**
+     * Constructor
+     * @param config {object}
+     * @param envPrefix
+     * @param separator
+     */
+    constructor(config, {envPrefix, separator, paramsInterpolation=[':', '']}={}) {
+        this._envPrefix = envPrefix;
+        this._separator = separator;
+        this._paramsInterpolation = paramsInterpolation.map( _.escapeRegExp );
+        this.set(config);
     }
-  });
 
-  return envConfig;
-}
+    /**
+     * Replaces overlays in a value of the config.
+     * Overlays are usually references to other config
+     * values such as:
+     *
+     *  helloworld: '{{ hello }} world!'
+     *
+     * so what this function does is basically
+     * resolving the value in the overlay.
+     *
+     * @param {string} value
+     * @param {Config} config
+     * @return {string}
+     */
+    resolveReferences(value = '') {
+        let reference = null;
+        let references = value.match(/{{\s*[\w\.]+\s*}}/g);
 
-/**
- * Constructor.
- *
- * @param config
- * @param envPrefix
- * @param separator
- * @constructor
- */
-function Reconfig(config, envPrefix, separator) {
-  this._config = null;
-  this._rawConfig = null;
-  this._envPrefix = envPrefix;
-  this._separator = separator;
+        if (references && references.length === 1) {
+            reference = this.resolve(this.get(references[0].replace(/[^\w.]/g, '')));
 
-  this.set(config);
-}
+            if (typeof reference === 'object') {
+                return reference;
+            }
+        }
 
-/**
- * Replaces overlays in a value of the config.
- * Overlays are usually references to other config
- * values such as:
- *
- *  helloworld: '{{ hello }} world!'
- *
- * so what this function does is basically
- * resolving the value in the overlay.
- *
- * @param {string} value
- * @param {Config} config
- * @return {string}
- */
-Reconfig.prototype.resolveReferences = function(value) {
-  var rcf = this;
-  var reference = null;
-  var references = value.match(/{{\s*[\w\.]+\s*}}/g);
-
-  if (references && references.length === 1) {
-    reference = rcf.resolve(rcf.get(references[0].replace(/[^\w.]/g, '')));
-
-    if (typeof reference === 'object') {
-      return reference;
+        return value.replace(/{{\s*[\w\.]+\s*}}/g, ref => {
+            return this.resolve(this.get(ref.replace(/[^\w.]/g, '')));
+        });
     }
-  }
 
-  return value.replace(/{{\s*[\w\.]+\s*}}/g, function(reference) {
-    return rcf.resolve(rcf.get(reference.replace(/[^\w.]/g, '')));
-  });
-};
+    /*
+     * Resolves all the parameters of the Config's
+     * value.
+     *
+     * A parameter is a string preceded by a colon,
+     * for example:
+     *
+     *  'This is my config :value'
+     *
+     * This function will be responsible of iterating
+     * through the parameters provided and trying to
+     * replace them in the value. If a parameter is
+     * not found, it will be ignored.
+     *
+     * @param value
+     * @param parameters
+     * @return {*}
+     */
+    resolveParameters(value, parameters) {
+        if(!_.isObject(parameters)){
+            return value;
+        }
 
-/*
- * Resolves all the parameters of the Config's
- * value.
- *
- * A parameter is a string preceded by a colon,
- * for example:
- *
- *  'This is my config :value'
- *
- * This function will be responsible of iterating
- * through the parameters provided and trying to
- * replace them in the value. If a parameter is
- * not found, it will be ignored.
- *
- * @param value
- * @param parameters
- * @return {*}
- */
-Reconfig.prototype.resolveParameters = function(value, parameters) {
-  for (var property in parameters) {
-    if (value) {
-      value = value.replace(RegExp(':' + property, 'g'), (parameters[property] || ''));
+        for (let property in parameters) {
+            if (value) {
+                value = value.replace(
+                    RegExp(this._paramsInterpolation[0] + property + this._paramsInterpolation[1], 'g'),
+                    (parameters[property] || '')
+                );
+            }
+        }
+
+        return value;
     }
-  }
 
-  return value;
-};
+    /**
+     * Resolves overlays in a required object
+     *
+     * @param object
+     * @param parameters
+     * @returns {*}
+     */
+    resolveObject(object, parameters) {
+        let clonedObject = _.cloneDeep(object);
 
-/**
- * Resolves overlays in a required object
- *
- * @param object
- * @param parameters
- * @returns {*}
- */
-Reconfig.prototype.resolveObject = function(object, parameters) {
-  var self = this;
-  var clonedObject = _.cloneDeep(object);
+        _.forEach(clonedObject, (value, key) => {
+            clonedObject[key] = this.resolve(value, parameters);
+        });
 
-  _.forEach(clonedObject, function(value, key) {
-    clonedObject[key] = self.resolve(value, parameters);
-  });
-
-  return clonedObject;
-};
-
-/**
- * Resolve the obtained value,
- * if value is an object it will recursively resolve the overlays
- *
- * @param value
- * @param parameters
- * @returns {*}
- */
-Reconfig.prototype.resolve = function(value, parameters) {
-  if (typeof value === 'string') {
-    value = this.resolveReferences(value);
-
-    if (parameters) {
-      value = this.resolveParameters(value, parameters);
+        return clonedObject;
     }
-  }
 
-  if (typeof value === 'object') {
-    value = this.resolveObject(value, parameters);
-  }
+    /**
+     * Resolve the obtained value,
+     * if value is an object it will recursively resolve the overlays
+     *
+     * @param value
+     * @param parameters
+     * @returns {*}
+     */
+    resolve(value, parameters) {
+        if (typeof value === 'string') {
+            value = this.resolveReferences(value);
 
-  return value;
-};
+            if (parameters) {
+                value = this.resolveParameters(value, parameters);
+            }
+        }
 
-Reconfig.prototype.set = function(config) {
-    if (!config) {
-    return;
-  }
+        if (typeof value === 'object') {
+            value = this.resolveObject(value, parameters);
+        }
 
-  if (this._envPrefix) {
-    if (process && process.env && typeof process.env !== String) {
-      _.merge(config, getConfigFromEnv(this._envPrefix, this._separator));
-    } else {
-      console.warn('HEY HEY HEY, this feature is supposed to be used in node only :)');
+        return value;
     }
-  }
 
-  this._config = this._rawConfig = (_.isObject(this._rawConfig) || _.isArray(this._rawConfig)) ? _.merge(this._rawConfig, config) : config;
-  this._config = this.resolve(this._config);
-};
+    set(config) {
+        if (!config) {
+            return;
+        }
 
-/**
- * Returns a configuration value, by path.
- *
- * If the configuration contains an object
- * 'greet' with a property 'formal' of value
- * 'Hello sir.', you can access it with a
- * convenient dot notation.
- *
- * Config.get('greet.formal') // Hello sir.
- *
- * Values can reference other values, for
- * example:
- *
- * greet: {
- *   base: 'Hello',
- *   formal: '{{ greet.base }} sir.'
- * }
- *
- * Values can also contain parameters:
- *
- * greet: {
- *   base: 'Hello',
- *   formal: '{{ greet.base }} :name.'
- * }
- *
- * which can then be resolved with:
- *
- *  Config.get('greet.formal', {name: 'John'})
- *
- * which will return "Hello John".
- *
- * @param {String} path
- * @param {Object} parameters
- * @param {*} fallbackValue
- * @return {*}
- */
-Reconfig.prototype.get = function(path, parameters, fallbackValue) {
-  if (!path) {
-    return this._config;
-  }
+        if (this._envPrefix) {
+            if (process && process.env && typeof process.env !== 'string') {
+                _.merge(config, getConfigFromEnv(this._envPrefix, this._separator));
+            } else {
+                console.warn('HEY HEY HEY, this feature is supposed to be used in node only :)');
+            }
+        }
 
-  var value = vpo.get(this._config, path, fallbackValue);
-  value = (parameters) ? this.resolve(value, parameters): value;
+        this._config = this._rawConfig = (_.isObject(this._rawConfig) || _.isArray(this._rawConfig)) ? _.merge(this._rawConfig, config) : config;
+        this._config = this.resolve(this._config);
+    }
 
-  return (_.isUndefined(value) || _.isNull(value)) ? null : value;
-};
+    /**
+     * Returns a configuration value, by path.
+     *
+     * If the configuration contains an object
+     * 'greet' with a property 'formal' of value
+     * 'Hello sir.', you can access it with a
+     * convenient dot notation.
+     *
+     * Config.get('greet.formal') // Hello sir.
+     *
+     * Values can reference other values, for
+     * example:
+     *
+     * greet: {
+     *   base: 'Hello',
+     *   formal: '{{ greet.base }} sir.'
+     * }
+     *
+     * Values can also contain parameters:
+     *
+     * greet: {
+     *   base: 'Hello',
+     *   formal: '{{ greet.base }} :name.'
+     * }
+     *
+     * which can then be resolved with:
+     *
+     *  Config.get('greet.formal', {name: 'John'})
+     *
+     * which will return "Hello John".
+     *
+     * @param {String} path
+     * @param {Object} parameters
+     * @param {*} fallbackValue
+     * @return {*}
+     */
+    get(path, parameters, fallbackValue) {
+        if (!path) {
+            return this._config;
+        }
 
-if (typeof module !== 'undefined' && module !== null) {
-  module.exports = Reconfig;
+        let value = _.get(this._config, path, fallbackValue);
+        value = (parameters) ? this.resolve(value, parameters) : value;
+
+        return (_.isUndefined(value) || _.isNull(value)) ? null : value;
+    }
 }

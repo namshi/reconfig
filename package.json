@@ -1,15 +1,21 @@
 {
   "name": "reconfig",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "JavaScript configurations as they're meant to be. Kinda.",
-  "main": "reconfig.js",
+  "main": "build/reconfig.js",
   "scripts": {
-    "test": "RECONFIG_envKey=value RECONFIG_confKey=newValue RECONFIG_list_1_key=newValue mocha -b"
+    "test": "npm run build && RECONFIG_envKey=value RECONFIG_confKey=newValue RECONFIG_list_1_key=newValue mocha -b",
+    "compile": "babel reconfig.js -o build/reconfig.js",
+    "build": "npm run compile &&  uglifyjs build/reconfig.js -o build/reconfig.js --source-map build/reconfig.min.js.map",
+    "prepublish": "npm test"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/namshi/reconfig.git"
   },
+  "files": [
+    "build"
+  ],
   "keywords": [
     "config",
     "configuration",
@@ -22,10 +28,16 @@
   },
   "homepage": "https://github.com/namshi/reconfig",
   "devDependencies": {
-    "mocha": "*"
+    "babel-cli": "^6.10.1",
+    "babel-eslint": "^6.1.0",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-transform-es2015-modules-umd": "^6.8.0",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "mocha": "*",
+    "uglify-js": "^2.6.4"
   },
   "dependencies": {
-    "lodash": "4.5.1",
-    "vpo": "2.0.0"
+    "lodash": "4.5.1"
   }
 }
