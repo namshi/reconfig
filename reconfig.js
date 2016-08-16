@@ -1,13 +1,24 @@
 'use strict';
-import _ from 'lodash';
+
+import _forEach from 'lodash.foreach'
+import _includes from 'lodash.includes'
+import _set from 'lodash.set'
+import _get from 'lodash.get'
+import _escapeRegExp from 'lodash.escaperegexp'
+import _isObject from 'lodash.isobject'
+import _isUndefined from 'lodash.isundefined'
+import _isNull from 'lodash.isnull'
+import _cloneDeep from 'lodash.clonedeep'
+import _merge from 'lodash.merge'
+import _isArray from 'lodash.isarray'
 
 let getConfigFromEnv = (prefix, separator = '_') => {
     let envConfig = {};
 
-    _.forEach(process.env, (value, key) => {
-        if (_.includes(key, prefix)) {
+    _forEach(process.env, (value, key) => {
+        if (_includes(key, prefix)) {
             let path = key.replace(prefix + separator, '').replace(new RegExp(separator, 'g'), '.');
-            _.set(envConfig, path, value);
+            _set(envConfig, path, value);
         }
     });
 
@@ -27,7 +38,7 @@ export default class Reconfig {
     constructor(config, {envPrefix, separator, paramsInterpolation=[':', '']}={}) {
         this._envPrefix = envPrefix;
         this._separator = separator;
-        this._paramsInterpolation = paramsInterpolation.map( _.escapeRegExp );
+        this._paramsInterpolation = paramsInterpolation.map( _escapeRegExp );
         this.set(config);
     }
 
@@ -81,7 +92,7 @@ export default class Reconfig {
      * @return {*}
      */
     resolveParameters(value, parameters) {
-        if(!_.isObject(parameters)){
+        if(!_isObject(parameters)){
             return value;
         }
 
@@ -105,9 +116,9 @@ export default class Reconfig {
      * @returns {*}
      */
     resolveObject(object, parameters) {
-        let clonedObject = _.cloneDeep(object);
+        let clonedObject = _cloneDeep(object);
 
-        _.forEach(clonedObject, (value, key) => {
+        _forEach(clonedObject, (value, key) => {
             clonedObject[key] = this.resolve(value, parameters);
         });
 
@@ -145,13 +156,13 @@ export default class Reconfig {
 
         if (this._envPrefix) {
             if (process && process.env && typeof process.env !== 'string') {
-                _.merge(config, getConfigFromEnv(this._envPrefix, this._separator));
+                _merge(config, getConfigFromEnv(this._envPrefix, this._separator));
             } else {
                 console.warn('HEY HEY HEY, this feature is supposed to be used in node only :)');
             }
         }
 
-        this._config = this._rawConfig = (_.isObject(this._rawConfig) || _.isArray(this._rawConfig)) ? _.merge(this._rawConfig, config) : config;
+        this._config = this._rawConfig = (_isObject(this._rawConfig) || _isArray(this._rawConfig)) ? _merge(this._rawConfig, config) : config;
         this._config = this.resolve(this._config);
     }
 
@@ -196,9 +207,9 @@ export default class Reconfig {
             return this._config;
         }
 
-        let value = _.get(this._config, path, fallbackValue);
+        let value = _get(this._config, path, fallbackValue);
         value = (parameters) ? this.resolve(value, parameters) : value;
 
-        return (_.isUndefined(value) || _.isNull(value)) ? null : value;
+        return (_isUndefined(value) || _isNull(value)) ? null : value;
     }
 }
