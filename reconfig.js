@@ -1,21 +1,21 @@
 'use strict';
 
-import _forEach from 'lodash.foreach'
-import _includes from 'lodash.includes'
-import _set from 'lodash.set'
-import _get from 'lodash.get'
-import _escapeRegExp from 'lodash.escaperegexp'
-import _isObject from 'lodash.isobject'
-import _isUndefined from 'lodash.isundefined'
-import _isNull from 'lodash.isnull'
-import _cloneDeep from 'lodash.clonedeep'
-import _merge from 'lodash.merge'
-import _isArray from 'lodash.isarray'
+import _includes from 'lodash/includes'
+import _set from 'lodash/set'
+import _get from 'lodash/get'
+import _escapeRegExp from 'lodash/escapeRegExp'
+import _isObject from 'lodash/isObject'
+import _isUndefined from 'lodash/isUndefined'
+import _isNull from 'lodash/isNull'
+import _cloneDeep from 'lodash/cloneDeep'
+import _merge from 'lodash/merge'
+import _isArray from 'lodash/isArray'
 
 let getConfigFromEnv = (prefix, separator = '_') => {
     let envConfig = {};
 
-    _forEach(process.env, (value, key) => {
+    Object.keys(process.env).forEach(key => {
+        let value = process.env[key];
         if (_includes(key, prefix)) {
             let path = key.replace(prefix + separator, '').replace(new RegExp(separator, 'g'), '.');
             _set(envConfig, path, value);
@@ -63,7 +63,7 @@ export default class Reconfig {
         if (references && references.length === 1) {
             reference = this.resolve(this.get(references[0].replace(/[^\w.]/g, '')));
 
-            if (typeof reference === 'object') {
+            if (reference === null || _isObject(reference)) {
                 return reference;
             }
         }
@@ -118,7 +118,8 @@ export default class Reconfig {
     resolveObject(object, parameters) {
         let clonedObject = _cloneDeep(object);
 
-        _forEach(clonedObject, (value, key) => {
+        Object.keys(clonedObject).forEach(key => {
+            let value = clonedObject[key];
             clonedObject[key] = this.resolve(value, parameters);
         });
 
@@ -142,7 +143,7 @@ export default class Reconfig {
             }
         }
 
-        if (typeof value === 'object') {
+        if (_isObject(value)) {
             value = this.resolveObject(value, parameters);
         }
 

@@ -2,7 +2,7 @@
 
 var assert = require('assert');
 var Reconfig = require('./../');
-var _isEqual = require('lodash.isequal');
+var _isEqual = require('lodash/isEqual');
 
 describe('Reconfig', function() {
   describe('new', function() {
